@@ -5,7 +5,7 @@ Module modCommon
     Public gstrLogFilePath As String = String.Empty    'ログファイルのフルパス(1.7で変更されたので追加)
 
     '共通の固定値
-    Public Const GSTR_APP_VERSION As String = "0.3.7 beta (2013/12/08)"
+    Public Const GSTR_APP_VERSION As String = "0.3.8ｓ beta (2014/01/25)"
     Public Const GSTR_SERVER_PROPERTIES As String = "server.properties"
     Public Const GSTR_IPBAN_LIST As String = "banned-ips.txt"
     Public Const GSTR_PLBAN_LIST As String = "banned-players.txt"
