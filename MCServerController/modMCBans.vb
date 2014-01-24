@@ -55,8 +55,8 @@ Module modMCBans
             'APIサーバ数の台数で取得出来るまでループ
             For i As Integer = 0 To strMCBansAPISV.Length - 1
                 Dim wreqIP As System.Net.HttpWebRequest = _
-                        CType(System.Net.HttpWebRequest.Create("http://" & strMCBansAPISV(0) & "/v2/" & APIKey & "/login/" _
-                                                                & UID & "/" & IP), _
+                        CType(System.Net.HttpWebRequest.Create("http://" & strMCBansAPISV(i) & "/v2/" & APIKey & "/login/" _
+                                                                & UID & "/" & IP),  _
                                                                 System.Net.HttpWebRequest)
                 wreqIP.UserAgent = "MCSC/" & GSTR_APP_VERSION
                 wreqIP.Proxy = Nothing 'Proxyを使用しない
