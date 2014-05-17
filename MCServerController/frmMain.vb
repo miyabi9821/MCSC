@@ -331,27 +331,6 @@ Public Class frmMain
     Private Function pfColorCodeTrim(ByRef msg As String) As Boolean
         Try
             msg = System.Text.RegularExpressions.Regex.Replace(msg, ChrW(27) & "\[(\d\d;(1|22))?m", "")
-            'msg = System.Text.RegularExpressions.Regex.Replace(msg, ChrW(27) & ".*1m", "")
-            'msg = System.Text.RegularExpressions.Regex.Replace(msg, ChrW(27) & ".*22m", "")
-            'msg = msg.Replace(ChrW(27) & "[m", "")
-
-            'msg = msg.Replace(ChrW(27), "")
-            'msg = msg.Trim("[34;22m")
-            'msg = msg.Trim("[32;22m")
-            'msg = msg.Trim("[36;22m")
-            'msg = msg.Trim("[31;22m")
-            'msg = msg.Trim("[35;22m")
-            'msg = msg.Trim("[33;22m")
-            'msg = msg.Trim("[37;22m")
-            'msg = msg.Trim("[30;1m")
-            'msg = msg.Trim("[34;1m")
-            'msg = msg.Trim("[32;1m")
-            'msg = msg.Trim("[36;1m")
-            'msg = msg.Trim("[31;1m")
-            'msg = msg.Trim("[35;1m")
-            'msg = msg.Trim("[33;1m")
-            'msg = msg.Trim("[37;1m")
-            'msg = msg.Trim("[m")
 
             Return True
         Catch ex As Exception
@@ -814,7 +793,7 @@ Public Class frmMain
                         End If
 
                         'ƒ`ƒƒƒbƒgƒƒbƒZ[ƒW‚Ìê‡‚Í‘¦I—¹‚·‚é
-                        If System.Text.RegularExpressions.Regex.IsMatch(msg, "\[\d\d:\d\d:\d\d\] \[Server thread/INFO\]: (\[.+?\])?(<.+?>) (.*)") Then
+                        If System.Text.RegularExpressions.Regex.IsMatch(msg, "\[\d\d:\d\d:\d\d\] \[Server thread/INFO\]: (\[.+?\])?<(.+?)> (.*)") Then
                             Exit Function
                         End If
 
@@ -1319,8 +1298,11 @@ Public Class frmMain
 
         If allOfflineMode = True Then '‘SˆõƒIƒtƒ‰ƒCƒ“ó‘Ô‚É•ÏX
             For i As Integer = 0 To lvPlayers.Items.Count - 1
-                lvPlayers.Items(i).SubItems(2).Text = GSTR_ONLINE_FALSE
-                lvPlayers.Items(i).SubItems(4).Text = DateTime.Now 'ƒƒOƒAƒEƒgŠÔ
+                '2014/05/17 ƒƒOƒCƒ“‚µ‚Ä‚È‚¢l‚Ü‚ÅƒƒOƒAƒEƒgŠÔ‚ğXV‚µ‚Ä‚¢‚½‚Ì‚ÅC³
+                If lvPlayers.Items(i).SubItems(2).Text = GSTR_ONLINE_TRUE Then
+                    lvPlayers.Items(i).SubItems(2).Text = GSTR_ONLINE_FALSE
+                    lvPlayers.Items(i).SubItems(4).Text = DateTime.Now 'ƒƒOƒAƒEƒgŠÔ
+                End If
             Next
 
         Else '“Á’è‚Ìƒ†[ƒU[‚Ìó‘Ô‚ğXV
@@ -1414,64 +1396,88 @@ Public Class frmMain
     '2012-05-25 08:21:29 [INFO] <USERNAME> Chat Message Œ`®‚ğŠÄ‹‚·‚é
     Private Function pfPlayerChatCheck(ByVal msg As String) As Boolean
         Try
-            Dim strSplitMsg As String() = msg.Split(" ")
-            If strSplitMsg.Length <= 4 Then
-                '—v‘f”‚ª4ˆÈ‰º‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
-                Exit Function
+            Dim strSplitMsg As String()
+            Dim strPlayerID As String = String.Empty
+            Dim strChat As String = String.Empty
+            Dim intCommandOffset As Integer = 0
+
+            If Settings.Instance.ServerVersion <= 2 Then
+                '1.6.4ˆÈ‘O
+                '2014-05-17 16:21:55 [INFO] <miyabi9821> test
+
+                intCommandOffset = 4
+
+                strSplitMsg = msg.Split(" ")
+                If strSplitMsg.Length <= 4 Then
+                    '—v‘f”‚ª4ˆÈ‰º‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
+                    Exit Function
+                End If
+
+                If strSplitMsg(2) <> "[INFO]" Then
+                    '3‚Â‚ß‚Ì—v‘f‚ª[INFO]‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
+                    Exit Function
+                End If
+
+                If Not System.Text.RegularExpressions.Regex.IsMatch(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (\[.+?\])?(<.+?>) (.*)") Then
+                    'ƒƒbƒZ[ƒW‚ª\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (\[.+?\])?(<.+?>) (.*)‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
+                    Exit Function
+                End If
+
+                'PlayerIDæ“¾
+                strPlayerID = System.Text.RegularExpressions.Regex.Replace(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (\[.+?\])?<(.+?)> (.*)", "$2")
+                'ƒ`ƒƒƒbƒgƒƒbƒZ[ƒWæ“¾
+                strChat = System.Text.RegularExpressions.Regex.Replace(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (\[.+?\])?(<.+?>) (.*)", "$3")
+
+            ElseIf Settings.Instance.ServerVersion = 3 Then
+                '1.7ˆÈ~
+                '[16:05:19] [Server thread/INFO]: <miyabi9821> test
+
+                intCommandOffset = 3
+
+                '–Ê“|‚ÈƒXƒy[ƒX‚ğ’uŠ·ˆ—
+                Dim strEditMsg As String = msg
+                If Settings.Instance.ServerVersion >= 3 Then
+                    If strEditMsg.IndexOf("[Server thread/INFO]:") >= 0 Then
+                        strEditMsg = strEditMsg.Replace("[Server thread/INFO]:", "[Server%20thread/INFO]:")
+                    End If
+                    If strEditMsg.IndexOf("[User Authenticator #1/INFO]:") >= 0 Then
+                        strEditMsg = strEditMsg.Replace("[User Authenticator #1/INFO]:", "[User%20Authenticator%20#1/INFO]:")
+                    End If
+                    If strEditMsg.IndexOf("[Server Shutdown Thread/INFO]:") >= 0 Then
+                        strEditMsg = strEditMsg.Replace("[Server Shutdown Thread/INFO]:", "[Server%20Shutdown%20Thread/INFO]:")
+                    End If
+                End If
+
+                strSplitMsg = strEditMsg.Split(" ")
+
+                '’uŠ·‚µ‚½ƒXƒy[ƒX‚ğ–ß‚·
+                If Settings.Instance.ServerVersion >= 3 Then
+                    For i As Integer = 0 To strSplitMsg.Length - 1
+                        strSplitMsg(i) = strSplitMsg(i).Replace("%20", " ")
+                    Next
+                End If
+
+                If strSplitMsg.Length <= 3 Then
+                    '—v‘f”‚ª3ˆÈ‰º‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
+                    Exit Function
+                End If
+
+                If strSplitMsg(1) <> "[Server thread/INFO]:" Then
+                    '2‚Â‚ß‚Ì—v‘f‚ª[Server thread/INFO]:‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
+                    Exit Function
+                End If
+
+                If Not System.Text.RegularExpressions.Regex.IsMatch(msg, "\[\d\d:\d\d:\d\d\] \[Server thread/INFO\]: (\[.+?\])?<(.+?)> (.*)") Then
+                    'ƒƒbƒZ[ƒW‚ª‚¶‚á‚È‚¢
+                    Exit Function
+                End If
+
+                'PlayerIDæ“¾
+                strPlayerID = System.Text.RegularExpressions.Regex.Replace(msg, "\[\d\d:\d\d:\d\d\] \[Server thread/INFO\]: (\[.+?\])?<(.+?)> (.*)", "$2")
+                'ƒ`ƒƒƒbƒgƒƒbƒZ[ƒWæ“¾
+                strChat = System.Text.RegularExpressions.Regex.Replace(msg, "\[\d\d:\d\d:\d\d\] \[Server thread/INFO\]: (\[.+?\])?(<.+?>) (.*)", "$3")
+
             End If
-
-            If strSplitMsg(2) <> "[INFO]" Then
-                '3‚Â‚ß‚Ì—v‘f‚ª[INFO]‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
-                Exit Function
-            End If
-
-            If Not System.Text.RegularExpressions.Regex.IsMatch(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (\[.+?\])?(<.+?>) (.*)") Then
-                'ƒƒbƒZ[ƒW‚ª\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (\[.+?\])?(<.+?>) (.*)‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
-                Exit Function
-            End If
-
-            '***** ‚±‚±‚Ü‚ÅƒpƒX‚µ‚½‚çƒ`ƒƒƒbƒgƒƒbƒZ[ƒW *****
-
-            'PlayerIDæ“¾
-            Dim strPlayerID As String = System.Text.RegularExpressions.Regex.Replace(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (\[.+?\])?<(.+?)> (.*)", "$2")
-            'ƒ`ƒƒƒbƒgƒƒbƒZ[ƒWæ“¾
-            Dim strChat As String = System.Text.RegularExpressions.Regex.Replace(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (\[.+?\])?(<.+?>) (.*)", "$3")
-
-            ''*** ‹Œƒ`ƒƒƒbƒgƒƒO”»’è ***
-            'Dim strSplitMsg As String() = msg.Split(" ")
-            'If strSplitMsg.Length <= 4 Then
-            '    '—v‘f”‚ª4ˆÈ‰º‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
-            '    Exit Function
-            'End If
-
-            'If strSplitMsg(2) <> "[INFO]" Then
-            '    '3‚Â‚ß‚Ì—v‘f‚ª[INFO]‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
-            '    Exit Function
-            'End If
-
-            'If strSplitMsg(3).Substring(0, 1) <> "<" Then
-            '    '4‚Â‚ß‚Ì—v‘f‚Ì1•¶š–Ú‚ª<‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
-            '    Exit Function
-            'End If
-
-            'If strSplitMsg(3).Substring(strSplitMsg(3).Length - 1, 1) <> ">" Then
-            '    '4‚Â‚ß‚Ì—v‘f‚ÌÅŒã‚Ì1•¶š‚ª>‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
-            '    Exit Function
-            'End If
-
-            ''***** ‚±‚±‚Ü‚ÅƒpƒX‚µ‚½‚çƒ`ƒƒƒbƒgƒƒbƒZ[ƒW *****
-
-            ''ƒ`ƒƒƒbƒgƒƒbƒZ[ƒW•”•ªØ‚èo‚µ
-            'Dim intOffset As Integer = 0
-            'For i As Integer = 0 To 3
-            '    intOffset += strSplitMsg(i).Length + 1
-            'Next
-
-            ''PlayerIDæ“¾
-            'Dim strPlayerID As String = strSplitMsg(3).Substring(1, strSplitMsg(3).Length - 2)
-            ''ƒ`ƒƒƒbƒgƒƒbƒZ[ƒWæ“¾
-            'Dim strChat As String = msg.Substring(intOffset, msg.Length - intOffset)
-
 
             ''*** NG Wordsˆ— ***
             'With NGWSettings.Instance
@@ -1519,7 +1525,8 @@ Public Class frmMain
                         'ƒ`ƒƒƒbƒgƒƒbƒZ[ƒW‚Ì1•¶š–Ú‚ªw’è‚³‚ê‚½Prefix Character‚È‚çˆ—ŠJn
                         If strChat.Substring(0, 1) = .PrefixChar Then
                             'strSplitMsg(4)‚ªƒRƒ}ƒ“ƒh‚É‚È‚Á‚Ä‚é‚Ì‚ÅAPrefix Character‚ğ”²‚¢‚½ƒRƒ}ƒ“ƒh‚ğØ‚èo‚·
-                            Dim strCommand As String = strSplitMsg(4).Substring(1, strSplitMsg(4).Length - 1)
+                            '1.7ˆÈ~‚Í(3)‚É‚È‚Á‚Ä‚µ‚Ü‚Á‚½‚Ì‚ÅAŒÅ’è’l‚Å‚Í‚È‚­•Ï”‰»
+                            Dim strCommand As String = strSplitMsg(intCommandOffset).Substring(1, strSplitMsg(intCommandOffset).Length - 1)
 
                             'Àsƒ†[ƒU[‚ªƒRƒ}ƒ“ƒh‚ÌÀsƒp[ƒ~ƒbƒVƒ‡ƒ“‚ğ‚Á‚Ä‚¢‚é‚©
                             Select Case pfGetPermission(strCommand, strPlayerID)
@@ -1528,11 +1535,11 @@ Public Class frmMain
                                     Select Case strCommand
                                         Case "tp"
                                             'strSplitMsg 4:Command 5:PlayerID
-                                            If strSplitMsg.Length = 6 Then
+                                            If strSplitMsg.Length = intCommandOffset + 2 Then
                                                 'w’è‚³‚ê‚½ƒvƒŒƒCƒ„[‚ª‚¢‚é‚©H
-                                                If pfIsPlayerOnline(strSplitMsg(5)) = True Then
+                                                If pfIsPlayerOnline(strSplitMsg(intCommandOffset + 1)) = True Then
                                                     'tp <from PlayerID> <to PlayerID>
-                                                    gsSendCommand("tp " & strPlayerID & " " & strSplitMsg(5))
+                                                    gsSendCommand("tp " & strPlayerID & " " & strSplitMsg(intCommandOffset + 1))
                                                 Else
                                                     gsSendCommand("tell " & strPlayerID & " Target Player is not Online.")
                                                 End If
@@ -1545,15 +1552,15 @@ Public Class frmMain
                                             Select Case strSplitMsg.Length
                                                 Case 6
                                                     'give <PlayerID> <ItemID>
-                                                    gsSendCommand("give " & strPlayerID & " " & strSplitMsg(5))
+                                                    gsSendCommand("give " & strPlayerID & " " & strSplitMsg(intCommandOffset + 1))
                                                 Case 7
                                                     'give <PlayerID> <ItemID> <Num>
-                                                    gsSendCommand("give " & strPlayerID & " " & strSplitMsg(5) & " " & strSplitMsg(6))
+                                                    gsSendCommand("give " & strPlayerID & " " & strSplitMsg(intCommandOffset + 1) & " " & strSplitMsg(intCommandOffset + 2))
                                                 Case 8
                                                     Select Case Settings.Instance.ServerMode
                                                         Case 0 'Œö®ƒT[ƒo
                                                             'give <PlayerID> <ItemID> <Num> <Damage>
-                                                            gsSendCommand("give " & strPlayerID & " " & strSplitMsg(5) & " " & strSplitMsg(6) & " " & strSplitMsg(7))
+                                                            gsSendCommand("give " & strPlayerID & " " & strSplitMsg(intCommandOffset + 1) & " " & strSplitMsg(intCommandOffset + 2) & " " & strSplitMsg(intCommandOffset + 3))
                                                         Case Else '‚»‚êˆÈŠO
                                                             '¦Bukkit‚É‚ÍDamagew’è‚È‚µ
                                                             gsSendCommand("tell " & strPlayerID & " give comand usage : " & .PrefixChar & "give <ItemID> <Num>")
@@ -1568,10 +1575,10 @@ Public Class frmMain
                                             End Select
                                         Case "time"
                                             'strSplitMsg 4:Command 5:set/add 6:amount
-                                            If strSplitMsg.Length = 7 Then
-                                                If strSplitMsg(5) = "set" OrElse strSplitMsg(5) = "add" Then
+                                            If strSplitMsg.Length = intCommandOffset + 3 Then
+                                                If strSplitMsg(intCommandOffset + 1) = "set" OrElse strSplitMsg(intCommandOffset + 1) = "add" Then
                                                     'time add/set <amount>
-                                                    gsSendCommand("time " & strSplitMsg(5) & " " & strSplitMsg(6))
+                                                    gsSendCommand("time " & strSplitMsg(intCommandOffset + 1) & " " & strSplitMsg(intCommandOffset + 2))
                                                 Else
                                                     gsSendCommand("tell " & strPlayerID & " time command option is add/set.")
                                                 End If
@@ -1582,16 +1589,16 @@ Public Class frmMain
                                             'strSplitMsg 4:Command 5:amount
                                             If strSplitMsg.Length = 6 Then
                                                 'xp <amount> <PlayerID>
-                                                gsSendCommand("xp " & strSplitMsg(5) & " " & strPlayerID)
+                                                gsSendCommand("xp " & strSplitMsg(intCommandOffset + 1) & " " & strPlayerID)
                                             Else
                                                 gsSendCommand("tell " & strPlayerID & " xp comand usage : " & .PrefixChar & "xp <0-5000>")
                                             End If
                                         Case "gamemode"
                                             'strSplitMsg 4:Command 5:0/1/2
-                                            If strSplitMsg.Length = 6 Then
+                                            If strSplitMsg.Length = intCommandOffset + 2 Then
                                                 'gamemode 0/1/2 <PlayerID>
-                                                gsSendCommand("gamemode " & strSplitMsg(5) & " " & strPlayerID)
-                                                Select Case strSplitMsg(5)
+                                                gsSendCommand("gamemode " & strSplitMsg(intCommandOffset + 1) & " " & strPlayerID)
+                                                Select Case strSplitMsg(intCommandOffset + 1)
                                                     Case 0
                                                         gsSendCommand("tell " & strPlayerID & " gamemode changed to 0=Servival")
                                                     Case 1
@@ -1606,10 +1613,10 @@ Public Class frmMain
                                             End If
                                         Case "kick"
                                             'strSplitMsg 4:Command 5:Target PlayerID
-                                            If strSplitMsg.Length = 6 Then
-                                                If pfIsPlayerOnline(strSplitMsg(5)) = True Then
+                                            If strSplitMsg.Length = intCommandOffset + 2 Then
+                                                If pfIsPlayerOnline(strSplitMsg(intCommandOffset + 1)) = True Then
                                                     'kick <PlayerID>
-                                                    gsSendCommand("kick " & strSplitMsg(5))
+                                                    gsSendCommand("kick " & strSplitMsg(intCommandOffset + 1))
                                                 Else
                                                     gsSendCommand("tell " & strPlayerID & " Target Player is not Online.")
                                                 End If
@@ -1618,40 +1625,40 @@ Public Class frmMain
                                             End If
                                         Case "ban"
                                             'strSplitMsg 4:Command 5:Target PlayerID
-                                            If strSplitMsg.Length = 6 Then
+                                            If strSplitMsg.Length = intCommandOffset + 2 Then
                                                 'banned-players.txt‚É‘¶İ‚·‚é‚©ƒ`ƒFƒbƒN(‚·‚é—\’è)
 
                                                 'ban <PlayerID>
-                                                gsSendCommand("ban " & strSplitMsg(5))
+                                                gsSendCommand("ban " & strSplitMsg(intCommandOffset + 1))
                                             Else
                                                 gsSendCommand("tell " & strPlayerID & " ban comand usage : " & .PrefixChar & "ban <PlayerID>")
                                             End If
                                         Case "pardon"
                                             'strSplitMsg 4:Command 5:Target PlayerID
-                                            If strSplitMsg.Length = 6 Then
+                                            If strSplitMsg.Length = intCommandOffset + 2 Then
                                                 'banned-players.txt‚É‘¶İ‚·‚é‚©ƒ`ƒFƒbƒN(‚·‚é—\’è)
 
                                                 'pardon <PlayerID>
-                                                gsSendCommand("pardon " & strSplitMsg(5))
+                                                gsSendCommand("pardon " & strSplitMsg(intCommandOffset + 1))
                                             Else
                                                 gsSendCommand("tell " & strPlayerID & " pardon comand usage : " & .PrefixChar & "pardon <PlayerID>")
                                             End If
                                         Case "whitelist"
                                             'strSplitMsg 4:Command 5:Command Mode 6:PlayerID(add/remove)
                                             Select Case strSplitMsg.Length
-                                                Case 6
-                                                    Select Case strSplitMsg(5)
+                                                Case intCommandOffset + 2
+                                                    Select Case strSplitMsg(intCommandOffset + 1)
                                                         Case "on"
                                                             'whitelist on
-                                                            gsSendCommand("whitelist " & strSplitMsg(5))
+                                                            gsSendCommand("whitelist " & strSplitMsg(intCommandOffset + 1))
                                                             gsSendCommand("tell " & strPlayerID & " Whitelist Enabled.")
                                                         Case "off"
                                                             'whitelist off
-                                                            gsSendCommand("whitelist " & strSplitMsg(5))
+                                                            gsSendCommand("whitelist " & strSplitMsg(intCommandOffset + 1))
                                                             gsSendCommand("tell " & strPlayerID & " Whitelist Disabled.")
                                                         Case "reload"
                                                             'whitelist reload
-                                                            gsSendCommand("whitelist " & strSplitMsg(5))
+                                                            gsSendCommand("whitelist " & strSplitMsg(intCommandOffset + 1))
                                                             gsSendCommand("tell " & strPlayerID & " whitelist reloaded.")
                                                         Case "list"
                                                             'ƒT[ƒo‘¤‚ÅÀs‚·‚é‚Æƒ†[ƒU‚É’Ê’m‚³‚ê‚È‚¢‚Ì‚ÅAwhite-list.txt‚ğ“Ç‚ñ‚Å’Ê’m‚·‚é
@@ -1678,19 +1685,19 @@ Public Class frmMain
                                                             gsSendCommand("tell " & strPlayerID & " whitelist comand usage : " & .PrefixChar & "whitelist <on/off/list/reload>")
                                                             gsSendCommand("tell " & strPlayerID & " whitelist comand usage : " & .PrefixChar & "whitelist <add/remove> <PlayerID>")
                                                     End Select
-                                                Case 7
-                                                    Select Case strSplitMsg(5)
+                                                Case intCommandOffset + 3
+                                                    Select Case strSplitMsg(intCommandOffset + 1)
                                                         Case "add"
                                                             'white-list.txt‚É‘¶İ‚·‚é‚©ƒ`ƒFƒbƒN(‚·‚é—\’è)
 
                                                             'whitelist add <PlayerID>
-                                                            gsSendCommand("whitelist " & strSplitMsg(5) & " " & strSplitMsg(6))
-                                                            gsSendCommand("tell " & strPlayerID & " " & strSplitMsg(6) & " has been registered to the white list.")
+                                                            gsSendCommand("whitelist " & strSplitMsg(intCommandOffset + 1) & " " & strSplitMsg(intCommandOffset + 2))
+                                                            gsSendCommand("tell " & strPlayerID & " " & strSplitMsg(intCommandOffset + 2) & " has been registered to the white list.")
                                                         Case "remove"
                                                             'white-list.txt‚É‘¶İ‚·‚é‚©ƒ`ƒFƒbƒN(‚·‚é—\’è)
 
                                                             'whitelist remove <PlayerID>
-                                                            gsSendCommand("whitelist " & strSplitMsg(5) & " " & strSplitMsg(6))
+                                                            gsSendCommand("whitelist " & strSplitMsg(intCommandOffset + 1) & " " & strSplitMsg(intCommandOffset + 2))
                                                             gsSendCommand("tell " & strPlayerID & " " & strSplitMsg(6) & " has been unregistered from the whitelist.")
                                                         Case Else
                                                             gsSendCommand("tell " & strPlayerID & " whitelist comand usage : @whitelist <on/off/list/reload>")
@@ -1703,17 +1710,17 @@ Public Class frmMain
                                         Case "spawnpoint"
                                             'strSplitMsg 4:Command 5:x(option) 6:y(option) 7:z(option)
                                             Select Case strSplitMsg.Length
-                                                Case 5 'xyz‚ªw’è‚³‚ê‚È‚¢ê‡
+                                                Case intCommandOffset + 1 'xyz‚ªw’è‚³‚ê‚È‚¢ê‡
                                                     'spawnpoint <PlayerID>
                                                     gsSendCommand("spawnpoint " & strPlayerID)
                                                     gsSendCommand("tell " & strPlayerID & " " & "Your spawn point has been set to current point.")
-                                                Case 8 'xyz‚ªw’è‚³‚ê‚Ä‚¢‚éê‡
+                                                Case intCommandOffset + 4 'xyz‚ªw’è‚³‚ê‚Ä‚¢‚éê‡
                                                     'spawnpoint <PlayerID> <x> <y> <z>
-                                                    Select Case pfCheckXYZ(strSplitMsg(5), strSplitMsg(6), strSplitMsg(7))
+                                                    Select Case pfCheckXYZ(strSplitMsg(intCommandOffset + 1), strSplitMsg(intCommandOffset + 2), strSplitMsg(intCommandOffset + 3))
                                                         Case 0
                                                             '³í‚È‚Ì‚ÅƒRƒ}ƒ“ƒhÀs
-                                                            gsSendCommand("spawnpoint " & strPlayerID & strSplitMsg(5) & " " & strSplitMsg(6) & " " & strSplitMsg(7))
-                                                            gsSendCommand("tell " & strPlayerID & " " & "Your spawn point has been set to x:" & strSplitMsg(5) & " y:" & strSplitMsg(6) & " z:" & strSplitMsg(7) & ".")
+                                                            gsSendCommand("spawnpoint " & strPlayerID & strSplitMsg(intCommandOffset + 1) & " " & strSplitMsg(intCommandOffset + 2) & " " & strSplitMsg(intCommandOffset + 3))
+                                                            gsSendCommand("tell " & strPlayerID & " " & "Your spawn point has been set to x:" & strSplitMsg(intCommandOffset + 1) & " y:" & strSplitMsg(intCommandOffset + 2) & " z:" & strSplitMsg(intCommandOffset + 3) & ".")
                                                         Case 1 'x‚ª®”‚Å–³‚¢
                                                             gsSendCommand("tell " & strPlayerID & " spawnpoint comand usage : " & .PrefixChar & "spawnpoint <x> <y> <z>")
                                                             gsSendCommand("tell " & strPlayerID & " x point is not invalid.")
@@ -1732,22 +1739,22 @@ Public Class frmMain
                                         Case "weather"
                                             'strSplitMsg 4:Command 5:Command Mode(clear/rain/thunder) 6:sec(option)
                                             Select Case strSplitMsg.Length
-                                                Case 6
-                                                    If strSplitMsg(5) = "clear" Or strSplitMsg(5) = "rain" Or strSplitMsg(5) = "thunder" Then
+                                                Case intCommandOffset + 2
+                                                    If strSplitMsg(5) = "clear" Or strSplitMsg(intCommandOffset + 1) = "rain" Or strSplitMsg(intCommandOffset + 1) = "thunder" Then
                                                         '“V‹Cƒ‚[ƒh‚ªclear/rain/thunder‚Ì‚Ì‚İÀs‚ğ’Ê‚·
-                                                        gsSendCommand("weather " & strSplitMsg(5))
-                                                        gsSendCommand("tell " & strPlayerID & " Changing to " & strSplitMsg(5) & " weather")
+                                                        gsSendCommand("weather " & strSplitMsg(intCommandOffset + 1))
+                                                        gsSendCommand("tell " & strPlayerID & " Changing to " & strSplitMsg(intCommandOffset + 1) & " weather")
                                                     Else
                                                         gsSendCommand("tell " & strPlayerID & " weather comand usage : " & .PrefixChar & "spawnpoint <clear/rain/thunder> <sec.(1-1000000)>")
                                                     End If
-                                                Case 7
+                                                Case intCommandOffset + 3
                                                     Dim t As Integer = 0
-                                                    If Integer.TryParse(strSplitMsg(6), t) = False Then '•bw’è‚ª®”‚©
+                                                    If Integer.TryParse(strSplitMsg(intCommandOffset + 2), t) = False Then '•bw’è‚ª®”‚©
                                                         gsSendCommand("tell " & strPlayerID & " weather comand usage : " & .PrefixChar & "spawnpoint <clear/rain/thunder> <sec.(1-1000000)>")
                                                     Else
                                                         If t >= 1 And t <= 1000000 Then '•bw’è‚ª”ÍˆÍ“à‚©
-                                                            gsSendCommand("weather " & strSplitMsg(5) & " " & strSplitMsg(6))
-                                                            gsSendCommand("tell " & strPlayerID & " Changing to " & strSplitMsg(5) & " weather only " & strSplitMsg(6) & " sec.")
+                                                            gsSendCommand("weather " & strSplitMsg(intCommandOffset + 1) & " " & strSplitMsg(intCommandOffset + 2))
+                                                            gsSendCommand("tell " & strPlayerID & " Changing to " & strSplitMsg(intCommandOffset + 1) & " weather only " & strSplitMsg(intCommandOffset + 2) & " sec.")
                                                         Else
                                                             gsSendCommand("tell " & strPlayerID & " weather comand usage : " & .PrefixChar & "spawnpoint <clear/rain/thunder> <sec.(1-1000000)>")
                                                         End If
@@ -2780,68 +2787,136 @@ Public Class frmMain
     '*** frmChatLog‚Éƒ`ƒƒƒbƒgƒƒO‚ğ‘—M ***
     Private Function ExpertChatLog(ByVal msg As String) As Boolean
         Try
-            Dim strSplitMsg As String() = msg.Split(" ")
-            If strSplitMsg.Length <= 4 Then
-                '—v‘f”‚ª4ˆÈ‰º‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
-                Exit Function
-            End If
+            If Settings.Instance.ServerVersion <= 2 Then
+                '1.6.4ˆÈ‘O
 
-            If strSplitMsg(2) <> "[INFO]" Then
-                '3‚Â‚ß‚Ì—v‘f‚ª[INFO]‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
-                Exit Function
-            End If
+                Dim strSplitMsg As String() = msg.Split(" ")
+                If strSplitMsg.Length <= 4 Then
+                    '—v‘f”‚ª4ˆÈ‰º‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
+                    Exit Function
+                End If
 
-            If Not System.Text.RegularExpressions.Regex.IsMatch(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (\[.+?\])?(<.+?>) (.*)") Then
-                '4‚Â‚ß‚Ì—v‘f‚ª(\[.*?\])?<.*?>‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
-                If strSplitMsg(3).Contains("[Server]") = True Then
-                    '[Server]‚ğŠÜ‚Ş‚È‚çƒT[ƒo[‚©‚ç‚Ìƒ`ƒƒƒbƒg
-                    'ƒ`ƒƒƒbƒgƒƒO‚Éo—Í‚ ‚¤
-                    frmChatlog.log = frmChatlog.log & msg & vbCrLf
-                    If chatting = True Then
-                        frmChatlog.chatRefresh()
+                If strSplitMsg(2) <> "[INFO]" Then
+                    '3‚Â‚ß‚Ì—v‘f‚ª[INFO]‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
+                    Exit Function
+                End If
+
+                If Not System.Text.RegularExpressions.Regex.IsMatch(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (\[.+?\])?(<.+?>) (.*)") Then
+                    '4‚Â‚ß‚Ì—v‘f‚ª(\[.*?\])?<.*?>‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
+                    If strSplitMsg(3).Contains("[Server]") = True Then
+                        '[Server]‚ğŠÜ‚Ş‚È‚çƒT[ƒo[‚©‚ç‚Ìƒ`ƒƒƒbƒg
+                        'ƒ`ƒƒƒbƒgƒƒO‚Éo—Í
+                        frmChatlog.log = frmChatlog.log & msg & vbCrLf
+                        If chatting = True Then
+                            frmChatlog.chatRefresh()
+                        End If
+                    End If
+                    If System.Text.RegularExpressions.Regex.IsMatch(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] .*?\[/.*?\] logged in with entity id.*") Then
+                        '(\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] )(.*?\)[/(.*?\)] logged in with entity id.* ‚È‚çƒƒOƒCƒ“ƒƒbƒZ[ƒW
+                        'ƒ`ƒƒƒbƒgƒƒO‚Éo—Í
+                        frmChatlog.log = frmChatlog.log & strSplitMsg(0) & " " & strSplitMsg(1) & " " & strSplitMsg(2) & " " & strSplitMsg(3) & " ‚³‚ñ‚ªƒƒOƒCƒ“‚µ‚Ü‚µ‚½B" & vbCrLf
+                        If chatting = True Then
+                            frmChatlog.chatRefresh()
+                        End If
+                    End If
+                    If System.Text.RegularExpressions.Regex.IsMatch(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] .*? lost connection:.*") Then
+                        '\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] .*? lost connection:.* ‚È‚çƒƒOƒAƒEƒgƒƒbƒZ[ƒW
+                        'ƒ`ƒƒƒbƒgƒƒO‚Éo—Í
+                        frmChatlog.log = frmChatlog.log & strSplitMsg(0) & " " & strSplitMsg(1) & " " & strSplitMsg(2) & " " & strSplitMsg(3) & " ‚³‚ñ‚ªƒƒOƒAƒEƒg‚µ‚Ü‚µ‚½B" & vbCrLf
+                        If chatting = True Then
+                            frmChatlog.chatRefresh()
+                        End If
+                    End If
+                    If System.Text.RegularExpressions.Regex.IsMatch(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (.*?) issued server command: (/.*)") Then
+                        '\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (.*?) issued server command: (/.*) ‚È‚çƒRƒ}ƒ“ƒhg—pƒƒO
+                        'ƒ`ƒƒƒbƒgƒƒO‚Éo—Í
+                        frmChatlog.log = frmChatlog.log & System.Text.RegularExpressions.Regex.Replace(msg, "(\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] )(.*?) issued server command: (/.*)", "[36;1m$1$2 ‚³‚ñ‚ª $3 ƒRƒ}ƒ“ƒh‚ğg—p‚µ‚Ü‚µ‚½B") & vbCrLf
+                        If chatting = True Then
+                            frmChatlog.chatRefresh()
+                        End If
+                    End If
+                    Exit Function
+                End If
+
+            ElseIf Settings.Instance.ServerVersion = 3 Then
+                '1.7
+                Dim strSplitMsg As String() = msg.Split(" ")
+
+                '–Ê“|‚ÈƒXƒy[ƒX‚ğ’uŠ·ˆ—
+                Dim strEditMsg As String = msg
+                If Settings.Instance.ServerVersion >= 3 Then
+                    If strEditMsg.IndexOf("[Server thread/INFO]:") >= 0 Then
+                        strEditMsg = strEditMsg.Replace("[Server thread/INFO]:", "[Server%20thread/INFO]:")
+                    End If
+                    If strEditMsg.IndexOf("[User Authenticator #1/INFO]:") >= 0 Then
+                        strEditMsg = strEditMsg.Replace("[User Authenticator #1/INFO]:", "[User%20Authenticator%20#1/INFO]:")
+                    End If
+                    If strEditMsg.IndexOf("[Server Shutdown Thread/INFO]:") >= 0 Then
+                        strEditMsg = strEditMsg.Replace("[Server Shutdown Thread/INFO]:", "[Server%20Shutdown%20Thread/INFO]:")
                     End If
                 End If
-                If System.Text.RegularExpressions.Regex.IsMatch(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] .*?\[/.*?\] logged in with entity id.*") Then
-                    '(\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] )(.*?\)[/(.*?\)] logged in with entity id.* ‚È‚çƒƒOƒCƒ“ƒƒbƒZ[ƒW
-                    'ƒ`ƒƒƒbƒgƒƒO‚Éo—Í
-                    frmChatlog.log = frmChatlog.log & strSplitMsg(0) & " " & strSplitMsg(1) & " " & strSplitMsg(2) & " " & strSplitMsg(3) & " ‚³‚ñ‚ªƒƒOƒCƒ“‚µ‚Ü‚µ‚½B" & vbCrLf
-                    If chatting = True Then
-                        frmChatlog.chatRefresh()
-                    End If
+
+                strSplitMsg = strEditMsg.Split(" ")
+
+                '’uŠ·‚µ‚½ƒXƒy[ƒX‚ğ–ß‚·
+                If Settings.Instance.ServerVersion >= 3 Then
+                    For i As Integer = 0 To strSplitMsg.Length - 1
+                        strSplitMsg(i) = strSplitMsg(i).Replace("%20", " ")
+                    Next
                 End If
-                If System.Text.RegularExpressions.Regex.IsMatch(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] .*? lost connection:.*") Then
-                    '\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] .*? lost connection:.* ‚È‚çƒƒOƒAƒEƒgƒƒbƒZ[ƒW
-                    'ƒ`ƒƒƒbƒgƒƒO‚Éo—Í
-                    frmChatlog.log = frmChatlog.log & strSplitMsg(0) & " " & strSplitMsg(1) & " " & strSplitMsg(2) & " " & strSplitMsg(3) & " ‚³‚ñ‚ªƒƒOƒAƒEƒg‚µ‚Ü‚µ‚½B" & vbCrLf
-                    If chatting = True Then
-                        frmChatlog.chatRefresh()
-                    End If
+
+                If strSplitMsg.Length <= 3 Then
+                    '—v‘f”‚ª3ˆÈ‰º‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
+                    Exit Function
                 End If
-                If System.Text.RegularExpressions.Regex.IsMatch(msg, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (.*?) issued server command: (/.*)") Then
-                    '\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (.*?) issued server command: (/.*) ‚È‚çƒRƒ}ƒ“ƒhg—pƒƒO
-                    'ƒ`ƒƒƒbƒgƒƒO‚Éo—Í
-                    frmChatlog.log = frmChatlog.log & System.Text.RegularExpressions.Regex.Replace(msg, "(\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] )(.*?) issued server command: (/.*)", "[36;1m$1$2 ‚³‚ñ‚ª $3 ƒRƒ}ƒ“ƒh‚ğg—p‚µ‚Ü‚µ‚½B") & vbCrLf
-                    If chatting = True Then
-                        frmChatlog.chatRefresh()
-                    End If
+
+                If strSplitMsg(1) <> "[Server thread/INFO]:" Then
+                    '2‚Â‚ß‚Ì—v‘f‚ª[Server thread/INFO]:‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
+                    Exit Function
                 End If
-                Exit Function
+
+                If Not System.Text.RegularExpressions.Regex.IsMatch(msg, "\[\d\d:\d\d:\d\d\] \[Server Thread/INFO\]: (\[.+?\])?(<.+?>) (.*)") Then
+                    '4‚Â‚ß‚Ì—v‘f‚ª(\[.*?\])?<.*?>‚¶‚á‚È‚¢‚È‚çƒ`ƒƒƒbƒg‚¶‚á‚È‚¢
+                    If strSplitMsg(2).Contains("[Server]") = True Then
+                        '[Server]‚ğŠÜ‚Ş‚È‚çƒT[ƒo[‚©‚ç‚Ìƒ`ƒƒƒbƒg
+                        'ƒ`ƒƒƒbƒgƒƒO‚Éo—Í
+                        frmChatlog.log = frmChatlog.log & msg & vbCrLf
+                        If chatting = True Then
+                            frmChatlog.chatRefresh()
+                        End If
+                    End If
+                    If System.Text.RegularExpressions.Regex.IsMatch(msg, "\[\d\d:\d\d:\d\d\] \[Server Thread/INFO\]: .*?\[/.*?\] logged in with entity id.*") Then
+                        '(\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] )(.*?\)[/(.*?\)] logged in with entity id.* ‚È‚çƒƒOƒCƒ“ƒƒbƒZ[ƒW
+                        'ƒ`ƒƒƒbƒgƒƒO‚Éo—Í
+                        frmChatlog.log = frmChatlog.log & strSplitMsg(0) & " " & strSplitMsg(1) & " " & strSplitMsg(2) & " ‚³‚ñ‚ªƒƒOƒCƒ“‚µ‚Ü‚µ‚½B" & vbCrLf
+                        If chatting = True Then
+                            frmChatlog.chatRefresh()
+                        End If
+                    End If
+                    If System.Text.RegularExpressions.Regex.IsMatch(msg, "\[\d\d:\d\d:\d\d\] \[Server Thread/INFO\]: .*? lost connection:.*") Then
+                        '\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] .*? lost connection:.* ‚È‚çƒƒOƒAƒEƒgƒƒbƒZ[ƒW
+                        'ƒ`ƒƒƒbƒgƒƒO‚Éo—Í
+                        frmChatlog.log = frmChatlog.log & strSplitMsg(0) & " " & strSplitMsg(1) & " " & strSplitMsg(2) & " ‚³‚ñ‚ªƒƒOƒAƒEƒg‚µ‚Ü‚µ‚½B" & vbCrLf
+                        If chatting = True Then
+                            frmChatlog.chatRefresh()
+                        End If
+                    End If
+                    If System.Text.RegularExpressions.Regex.IsMatch(msg, "\[\d\d:\d\d:\d\d\] \[Server Thread/INFO\]: (.*?) issued server command: (/.*)") Then
+                        '\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] (.*?) issued server command: (/.*) ‚È‚çƒRƒ}ƒ“ƒhg—pƒƒO
+                        'ƒ`ƒƒƒbƒgƒƒO‚Éo—Í
+                        frmChatlog.log = frmChatlog.log & System.Text.RegularExpressions.Regex.Replace(msg, "(\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \[INFO\] )(.*?) issued server command: (/.*)", "[36;1m$1$2 ‚³‚ñ‚ª $3 ƒRƒ}ƒ“ƒh‚ğg—p‚µ‚Ü‚µ‚½B") & vbCrLf
+                        If chatting = True Then
+                            frmChatlog.chatRefresh()
+                        End If
+                    End If
+
+                    Exit Function
+                End If
             End If
-
-            '***** ‚±‚±‚Ü‚ÅƒpƒX‚µ‚½‚çƒ`ƒƒƒbƒgƒƒbƒZ[ƒW *****
-
-
-            'Dim strChatlog As String = "<" & strPlayerID & ">" & strChat
-            'ƒ`ƒƒƒbƒgƒƒOƒEƒBƒ“ƒhƒE‚Éƒ`ƒƒƒbƒgƒƒbƒZ[ƒW‚ğ•\¦
-            frmChatlog.log = frmChatlog.log & msg & vbCrLf
-            If chatting = True Then
-                frmChatlog.chatRefresh()
-            End If
-
-
 
             Return True
         Catch ex As Exception
+            pfWriteSystemLog(ex.Message, Color.Red)
             Return False
         End Try
     End Function

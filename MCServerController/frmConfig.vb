@@ -3,7 +3,7 @@ Public Class frmConfig
     Private Sub btnServerFileOpen_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnServerFileOpen.Click
         'デフォルトファイル名指定
         If rbOfficial.Checked = True Then
-            ofdFile.FileName = "minecraft_server.jar"
+            ofdFile.FileName = "minecraft_server*.jar"
         ElseIf rbBukkit.Checked = True Then
             ofdFile.FileName = "craftbukkit*.jar"
         End If
@@ -20,6 +20,22 @@ Public Class frmConfig
         If ofdFile.ShowDialog() = Windows.Forms.DialogResult.OK Then
             'OKを押されたときのみ処理する
             txtJarPath.Text = ofdFile.FileName
+
+            If txtJarPath.Text.IndexOf("bukkit") >= 0 Then
+                'ファイル名にbukkitの記載があればラジオボタンをbukkitに変更(強引)
+                rbBukkit.Checked = True
+                txtJarFileAugment.Text = "--nojline" '2013/07/28 Win8/WS2012で2バイト文字が化ける問題対応
+            Else
+                rbOfficial.Checked = True
+                txtJarFileAugment.Text = "nogui"
+
+                '最近はデフォルトのファイル名にバージョンが入るので、一応ラジオボタンの選択を自動化
+                If txtJarPath.Text.IndexOf("minecraft_server.1.6") >= 0 Then
+                    rbV14.AutoCheck = True
+                ElseIf txtJarPath.Text.IndexOf("minecraft_server.1.7") >= 0 Then
+                    rbV17.Checked = True
+                End If
+            End If
         End If
 
     End Sub
@@ -77,6 +93,13 @@ Public Class frmConfig
                 Else
                     rbOfficial.Checked = True
                     txtJarFileAugment.Text = "nogui"
+
+                    '最近はデフォルトのファイル名にバージョンが入るので、一応ラジオボタンの選択を自動化
+                    If strJarFiles(0).IndexOf("minecraft_server.1.6") >= 0 Then
+                        rbV14.AutoCheck = True
+                    ElseIf strJarFiles(0).IndexOf("minecraft_server.1.7") >= 0 Then
+                        rbV17.Checked = True
+                    End If
                 End If
 
             End If
@@ -110,10 +133,12 @@ Public Class frmConfig
         '(優先順位が高い物を上に記述すること)
         Dim strProgramFiles As String = System.Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles)
         Dim arDefaultJavaExePath As New ArrayList
-        arDefaultJavaExePath.Add(strProgramFiles & "\java\jre6\bin\java.exe")
         arDefaultJavaExePath.Add(strProgramFiles & "\java\jre7\bin\java.exe")
-        arDefaultJavaExePath.Add(strProgramFiles & " (x86)\java\jre6\bin\java.exe")
+        arDefaultJavaExePath.Add(strProgramFiles & "\java\jre8\bin\java.exe")
+        arDefaultJavaExePath.Add(strProgramFiles & "\java\jre6\bin\java.exe")
         arDefaultJavaExePath.Add(strProgramFiles & " (x86)\java\jre7\bin\java.exe")
+        arDefaultJavaExePath.Add(strProgramFiles & " (x86)\java\jre8\bin\java.exe")
+        arDefaultJavaExePath.Add(strProgramFiles & " (x86)\java\jre6\bin\java.exe")
 
         Dim strPath As String
         For Each strPath In arDefaultJavaExePath

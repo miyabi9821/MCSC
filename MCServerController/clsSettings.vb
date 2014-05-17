@@ -282,7 +282,7 @@ Public Class Settings
         _blnAutoRecovery = False
         _blnShowConsole = False
         _intServerMode = 0
-        _intServerVersion = 2
+        _intServerVersion = 3
         _intHeartBeatInterval = 60
         _intHeartBeatStopCount = 3
         _intHeartBeatKillCount = 6

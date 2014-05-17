@@ -11,9 +11,17 @@ Public Class frmChatlog
         rtbChatlog.Text = log.Replace("[INFO]", "")
         'ログイン・ログアウトを表示するか
         If cbShenter.Checked = False Then
-            '2013-07-12 13:28:58  nullp[/127.0.0.1:58935] さんがログインしました。
-            rtbChatlog.Text = Regex.Replace(rtbChatlog.Text, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d  .+?\[.+?\] さんがログインしました。", "")
-            rtbChatlog.Text = Regex.Replace(rtbChatlog.Text, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d  .+? さんがログアウトしました。", "")
+            If Settings.Instance.ServerVersion <= 2 Then
+                '1.6以前の形式
+                '2013-07-12 13:28:58  nullp[/127.0.0.1:58935] さんがログインしました。
+                rtbChatlog.Text = Regex.Replace(rtbChatlog.Text, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d  .+?\[.+?\] さんがログインしました。", "")
+                rtbChatlog.Text = Regex.Replace(rtbChatlog.Text, "\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d  .+? さんがログアウトしました。", "")
+            ElseIf Settings.Instance.ServerVersion = 3 Then
+                '1.7形式
+                rtbChatlog.Text = Regex.Replace(rtbChatlog.Text, "\[\d\d:\d\d:\d\d\]  .+?\[.+?\] さんがログインしました。", "")
+                rtbChatlog.Text = Regex.Replace(rtbChatlog.Text, "\[\d\d:\d\d:\d\d\]  .+? さんがログアウトしました。", "")
+            End If
+
         End If
 
         '自然発生する無駄改行削除

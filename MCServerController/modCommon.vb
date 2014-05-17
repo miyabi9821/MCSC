@@ -5,12 +5,11 @@ Module modCommon
     Public gstrLogFilePath As String = String.Empty    'ログファイルのフルパス(1.7で変更されたので追加)
 
     '共通の固定値
-    Public Const GSTR_APP_VERSION As String = "0.3.8ｓ beta (2014/01/25)"
+    Public Const GSTR_APP_VERSION As String = "0.3.8 beta (2014/05/17)"
     Public Const GSTR_SERVER_PROPERTIES As String = "server.properties"
     Public Const GSTR_IPBAN_LIST As String = "banned-ips.txt"
     Public Const GSTR_PLBAN_LIST As String = "banned-players.txt"
     Public Const GSTR_WHITE_LIST As String = "white-list.txt"
-    'Public Const GSTR_SERVER_LOG As String = "server.log"　'1.7からlatest.logに変わったため、固定値で持つ意味が無いのでコメントアウト
     Public Const GSTR_CONFIG_DIR As String = "MCSConfig"
     Public Const GSTR_CONFIG_FILE As String = "Config.xml"
     Public Const GSTR_PLAYERLIST_FILE As String = "Players.xml"
