@@ -31,7 +31,7 @@ Public Class frmConfig
 
                 '最近はデフォルトのファイル名にバージョンが入るので、一応ラジオボタンの選択を自動化
                 If txtJarPath.Text.IndexOf("minecraft_server.1.6") >= 0 Then
-                    rbV14.AutoCheck = True
+                    rbV14.Checked = True
                 ElseIf txtJarPath.Text.IndexOf("minecraft_server.1.7") >= 0 Then
                     rbV17.Checked = True
                 End If
