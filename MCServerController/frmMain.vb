@@ -658,6 +658,7 @@ Public Class frmMain
             End If
 
             'ログ読み込み
+            timTick.Enabled = False 'ログ読み取りが終わるまでタイマー停止
             pfLogRead()
 
             '情報更新
@@ -678,6 +679,12 @@ Public Class frmMain
 
         Catch ex As Exception
 
+
+        Finally
+            'タイマー再開（サーバ起動中に限る）
+            If timTick.Enabled = False And btnRun.Enabled = False Then
+                timTick.Enabled = True
+            End If
         End Try
 
     End Sub
