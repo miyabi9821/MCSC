@@ -5,7 +5,7 @@ Module modCommon
     Public gstrLogFilePath As String = String.Empty    'ログファイルのフルパス(1.7で変更されたので追加)
 
     '共通の固定値
-    Public Const GSTR_APP_VERSION As String = "0.3.8 beta (2014/05/17)"
+    Public Const GSTR_APP_VERSION As String = "0.3.9 beta (2014/07/21)"
     Public Const GSTR_SERVER_PROPERTIES As String = "server.properties"
     Public Const GSTR_IPBAN_LIST As String = "banned-ips.txt"
     Public Const GSTR_PLBAN_LIST As String = "banned-players.txt"
@@ -19,6 +19,7 @@ Module modCommon
     Public Const GSTR_CUSTOMACTION_FILE As String = "CustomAction.xml"
     Public Const GSTR_PERMISSION_FILE As String = "Permission.xml"
     Public Const GSTR_BACKUPFILE_PREFIX As String = "MCSCBackup-"
+    Public Const GSTR_EULA_TEXT As String = "eula.txt"
     Public Const GSTR_RAREXE As String = "Rar.exe"
     Public Const GSTR_ONLINE_TRUE As String = "○" 'オンラインステータスがオンライン
     Public Const GSTR_ONLINE_FALSE As String = "×" 'オンラインステータスがオフライン
@@ -704,5 +705,45 @@ Module modCommon
         End If
 
         Return Nothing
+    End Function
+
+    '1.7.10以降のeula.txtをチェック
+    '存在しないならTrue、存在するならeula=の状態を返す
+    Public Function gfGetEula() As Boolean
+        Dim strEulaFile As String = _
+            System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Settings.Instance.JarPath), _
+                                   GSTR_EULA_TEXT) 'サーバ設定ファイルのパス
+        If System.IO.File.Exists(strEulaFile) = False Then
+            'ファイルが無ければTrue
+            Return True
+        End If
+
+
+        Dim strReadBuf As String = String.Empty
+        Dim fsEula As New System.IO.FileStream(strEulaFile, IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.ReadWrite)
+        Dim srEula As New System.IO.StreamReader(fsEula, System.Text.Encoding.Default)
+        While (srEula.Peek() >= 0)
+            strReadBuf = srEula.ReadLine
+
+            If strReadBuf = "" Then
+                '空行は何もしない
+            ElseIf strReadBuf.Substring(0, 1) = "#" Then
+                'コメント行は何もしない
+            Else
+                Dim strSplitBuf As String() = strReadBuf.Split("=")
+                If strSplitBuf.Length = 2 Then
+                    'eula=true/false(boolean)だった場合
+                    Dim blnTmp As Boolean = False
+                    If Boolean.TryParse(strSplitBuf(1), blnTmp) = True Then
+                        Return blnTmp
+                    Else
+                        Return False
+                    End If
+                Else
+                    '無視
+                End If
+            End If
+        End While
+
     End Function
 End Module
