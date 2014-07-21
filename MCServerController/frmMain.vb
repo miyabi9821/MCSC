@@ -344,6 +344,13 @@ Public Class frmMain
     '参考(ファイル監視)：http://dobon.net/vb/dotnet/file/filesystemwatcher.html
     Private Function pfServerStart() As Boolean
         Try
+            '2014/07/21 eula.txt対応
+            If gfGetEula() = False Then
+                pfWriteSystemLog("You must agree to the EULA(eula.txt).", Color.Red)
+                gblnExitFlg = True
+                Return False
+            End If
+
             '2012/11/03 サーバ起動前にバックアップを取得するオプション追加(自動バックアップ有効時のみ)
             '2012/11/03 Runボタンが有効の時のみ実行するように変更（自動リカバリ処理中はバックアップしない）
             If btnRun.Enabled = True AndAlso Settings.Instance.BackupEnabled = True AndAlso Settings.Instance.BackupBeforeServerRun = True Then
