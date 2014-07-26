@@ -2,6 +2,7 @@
 Partial Class frmConfig
     Inherits System.Windows.Forms.Form
 
+
     'フォームがコンポーネントの一覧をクリーンアップするために dispose をオーバーライドします。
     <System.Diagnostics.DebuggerNonUserCode()> _
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
@@ -14,8 +15,10 @@ Partial Class frmConfig
         End Try
     End Sub
 
+
     'Windows フォーム デザイナで必要です。
     Private components As System.ComponentModel.IContainer
+
 
     'メモ: 以下のプロシージャは Windows フォーム デザイナで必要です。
     'Windows フォーム デザイナを使用して変更できます。  
@@ -76,9 +79,9 @@ Partial Class frmConfig
         Me.Label1.AutoSize = True
         Me.Label1.Location = New System.Drawing.Point(10, 52)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(103, 12)
+        Me.Label1.Size = New System.Drawing.Size(61, 12)
         Me.Label1.TabIndex = 0
-        Me.Label1.Text = "サーバファイルの場所"
+        Me.Label1.Text = "Server File"
         '
         'txtJarPath
         '
@@ -104,7 +107,7 @@ Partial Class frmConfig
         Me.btnServerFileOpen.Name = "btnServerFileOpen"
         Me.btnServerFileOpen.Size = New System.Drawing.Size(61, 23)
         Me.btnServerFileOpen.TabIndex = 4
-        Me.btnServerFileOpen.Text = "開く"
+        Me.btnServerFileOpen.Text = "Open"
         Me.btnServerFileOpen.UseVisualStyleBackColor = True
         '
         'ofdFile
@@ -116,9 +119,9 @@ Partial Class frmConfig
         Me.lblJavaFile.AutoSize = True
         Me.lblJavaFile.Location = New System.Drawing.Point(12, 102)
         Me.lblJavaFile.Name = "lblJavaFile"
-        Me.lblJavaFile.Size = New System.Drawing.Size(80, 12)
+        Me.lblJavaFile.Size = New System.Drawing.Size(73, 12)
         Me.lblJavaFile.TabIndex = 5
-        Me.lblJavaFile.Text = "java.exeの場所"
+        Me.lblJavaFile.Text = "java.exe Path"
         '
         'btnJavaExeOpen
         '
@@ -126,7 +129,7 @@ Partial Class frmConfig
         Me.btnJavaExeOpen.Name = "btnJavaExeOpen"
         Me.btnJavaExeOpen.Size = New System.Drawing.Size(61, 23)
         Me.btnJavaExeOpen.TabIndex = 6
-        Me.btnJavaExeOpen.Text = "開く"
+        Me.btnJavaExeOpen.Text = "Open"
         Me.btnJavaExeOpen.UseVisualStyleBackColor = True
         '
         'txtJavaExe
@@ -141,9 +144,9 @@ Partial Class frmConfig
         Me.lblAugment.AutoSize = True
         Me.lblAugment.Location = New System.Drawing.Point(10, 152)
         Me.lblAugment.Name = "lblAugment"
-        Me.lblAugment.Size = New System.Drawing.Size(88, 12)
+        Me.lblAugment.Size = New System.Drawing.Size(79, 12)
         Me.lblAugment.TabIndex = 8
-        Me.lblAugment.Text = "Javaの起動引数"
+        Me.lblAugment.Text = "Java Augment"
         '
         'btnAugmentDefault
         '
@@ -151,7 +154,7 @@ Partial Class frmConfig
         Me.btnAugmentDefault.Name = "btnAugmentDefault"
         Me.btnAugmentDefault.Size = New System.Drawing.Size(61, 23)
         Me.btnAugmentDefault.TabIndex = 9
-        Me.btnAugmentDefault.Text = "開く"
+        Me.btnAugmentDefault.Text = "Default"
         Me.btnAugmentDefault.UseVisualStyleBackColor = True
         '
         'txtAugment
@@ -169,7 +172,7 @@ Partial Class frmConfig
         Me.btnApply.Name = "btnApply"
         Me.btnApply.Size = New System.Drawing.Size(61, 23)
         Me.btnApply.TabIndex = 11
-        Me.btnApply.Text = "適用"
+        Me.btnApply.Text = "Apply"
         Me.btnApply.UseVisualStyleBackColor = True
         '
         'btnCancel
@@ -178,7 +181,7 @@ Partial Class frmConfig
         Me.btnCancel.Name = "btnCancel"
         Me.btnCancel.Size = New System.Drawing.Size(61, 23)
         Me.btnCancel.TabIndex = 12
-        Me.btnCancel.Text = "キャンセル"
+        Me.btnCancel.Text = "Cancel"
         Me.btnCancel.UseVisualStyleBackColor = True
         '
         'chkAutoStart
@@ -186,9 +189,9 @@ Partial Class frmConfig
         Me.chkAutoStart.AutoSize = True
         Me.chkAutoStart.Location = New System.Drawing.Point(12, 266)
         Me.chkAutoStart.Name = "chkAutoStart"
-        Me.chkAutoStart.Size = New System.Drawing.Size(183, 16)
+        Me.chkAutoStart.Size = New System.Drawing.Size(215, 16)
         Me.chkAutoStart.TabIndex = 13
-        Me.chkAutoStart.Text = "MCSC起動時にサーバも起動する"
+        Me.chkAutoStart.Text = "Server Start with Application Startup."
         Me.chkAutoStart.UseVisualStyleBackColor = True
         '
         'chkAutoRecovery
@@ -196,9 +199,9 @@ Partial Class frmConfig
         Me.chkAutoRecovery.AutoSize = True
         Me.chkAutoRecovery.Location = New System.Drawing.Point(12, 288)
         Me.chkAutoRecovery.Name = "chkAutoRecovery"
-        Me.chkAutoRecovery.Size = New System.Drawing.Size(157, 16)
+        Me.chkAutoRecovery.Size = New System.Drawing.Size(220, 16)
         Me.chkAutoRecovery.TabIndex = 14
-        Me.chkAutoRecovery.Text = "自動復旧機能を有効にする"
+        Me.chkAutoRecovery.Text = "Enable Default Server Auto-Recovery."
         Me.chkAutoRecovery.UseVisualStyleBackColor = True
         '
         'chkShowConsole
@@ -207,9 +210,9 @@ Partial Class frmConfig
         Me.chkShowConsole.ForeColor = System.Drawing.SystemColors.ControlText
         Me.chkShowConsole.Location = New System.Drawing.Point(12, 310)
         Me.chkShowConsole.Name = "chkShowConsole"
-        Me.chkShowConsole.Size = New System.Drawing.Size(156, 16)
+        Me.chkShowConsole.Size = New System.Drawing.Size(181, 16)
         Me.chkShowConsole.TabIndex = 15
-        Me.chkShowConsole.Text = "標準のコンソールも表示する"
+        Me.chkShowConsole.Text = "Show Default Console Window."
         Me.chkShowConsole.UseVisualStyleBackColor = True
         '
         'epInput
@@ -221,18 +224,18 @@ Partial Class frmConfig
         Me.Label2.AutoSize = True
         Me.Label2.Location = New System.Drawing.Point(10, 9)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(59, 12)
+        Me.Label2.Size = New System.Drawing.Size(67, 12)
         Me.Label2.TabIndex = 17
-        Me.Label2.Text = "サーバ種別"
+        Me.Label2.Text = "Server Type"
         '
         'Label3
         '
         Me.Label3.AutoSize = True
         Me.Label3.Location = New System.Drawing.Point(10, 27)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(50, 12)
+        Me.Label3.Size = New System.Drawing.Size(81, 12)
         Me.Label3.TabIndex = 18
-        Me.Label3.Text = "バージョン"
+        Me.Label3.Text = "Server Version"
         '
         'panelServerType
         '
@@ -440,7 +443,7 @@ Partial Class frmConfig
         Me.btnJarFileAugment.Name = "btnJarFileAugment"
         Me.btnJarFileAugment.Size = New System.Drawing.Size(61, 23)
         Me.btnJarFileAugment.TabIndex = 28
-        Me.btnJarFileAugment.Text = "開く"
+        Me.btnJarFileAugment.Text = "Default"
         Me.btnJarFileAugment.UseVisualStyleBackColor = True
         '
         'lblJarFileAugment
@@ -448,9 +451,9 @@ Partial Class frmConfig
         Me.lblJarFileAugment.AutoSize = True
         Me.lblJarFileAugment.Location = New System.Drawing.Point(10, 202)
         Me.lblJarFileAugment.Name = "lblJarFileAugment"
-        Me.lblJarFileAugment.Size = New System.Drawing.Size(93, 12)
+        Me.lblJarFileAugment.Size = New System.Drawing.Size(94, 12)
         Me.lblJarFileAugment.TabIndex = 27
-        Me.lblJarFileAugment.Text = "サーバの起動引数"
+        Me.lblJarFileAugment.Text = "Jar File Augment"
         '
         'frmConfig
         '
@@ -491,6 +494,7 @@ Partial Class frmConfig
         Me.gbHeartBeat.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
+
 
     End Sub
     Friend WithEvents Label1 As System.Windows.Forms.Label
